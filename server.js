@@ -1,10 +1,11 @@
 // server.js
 
-const express = require("express"); // Importera Express
-const dateModule = require("./dateModule"); // Importera modulen
+const express = require("express"); 
+const dateModule = require("./dateModule"); 
+const jsonFileModule = require("./jsonFileModule");
 const app = express(); // Skapa en ny Express-applikation
 
-const PORT = 8080; // Välj en port för servern
+const PORT = 8080; 
 
 // Definiera en enkel GET-route
 app.get("/", (req, res) => {
@@ -31,6 +32,36 @@ app.get("/api/info", (req, res) => {
       startDate: "2025-05-01"
   };
   res.json(courseInfo); // Skicka kursinformationen som JSON
+});
+
+// Läs JSON från en fil
+app.get("/read-json", (req, res) => {
+  const filePath = "data.json"; // Ange sökvägen till din JSON-fil
+
+  jsonFileModule.readJSON(filePath, (err, data) => {
+      if (err) {
+          return res.status(500).send("Fel vid läsning av fil: " + err.message);
+      }
+      res.json(data); // Returnera den lästa JSON-datan som svar
+  });
+});
+
+// Skriv JSON till en fil
+app.get("/write-json", (req, res) => {
+  const filePath = "data.json"; // Ange sökvägen till din JSON-fil
+
+  const newData = {
+      name: "John Doe",
+      age: 30,
+      profession: "Developer"
+  };
+
+  jsonFileModule.writeJSON(filePath, newData, (err) => {
+      if (err) {
+          return res.status(500).send("Fel vid skrivning till fil: " + err.message);
+      }
+      res.send("Data har skrivits till filen!");
+  });
 });
 
 // Starta servern
