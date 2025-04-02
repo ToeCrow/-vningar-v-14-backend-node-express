@@ -1,6 +1,8 @@
 const express = require("express");
 const dateModule = require("./dateModule");
 const jsonFileModule = require("./jsonFileModule");
+const { logEvent } = require("./logger");
+
 const app = express(); // Skapa en ny Express-applikation
 
 const PORT = 8080; // Definiera porten
@@ -15,10 +17,26 @@ const getNavbar = () => {
                 <li><a href="/api/info" style="text-decoration: none;">Kursinfo</a></li>
                 <li><a href="/read-json" style="text-decoration: none;">Läs JSON</a></li>
                 <li><a href="/write-json" style="text-decoration: none;">Skriv JSON</a></li>
+                <li><a href="/api/users" style="text-decoration: none;">Användare</a></li>
+                <li><a href="/log" style="text-decoration: none;">Logg</a></li>
             </ul>
         </nav>
     `;
 };
+
+// Middleware för att logga varje inkommande request
+app.use((req, res, next) => {
+  logEvent(`Request: ${req.method} ${req.url}`);
+  next(); // Gå vidare till nästa middleware eller route
+});
+
+// En enkel route
+app.get("/log", (req, res) => {
+  res.send(`
+    ${getNavbar()}
+    <h1>Logg</h1>
+    `);
+});
 
 // Definiera en enkel GET-route "/"
 app.get("/", (req, res) => {
@@ -91,6 +109,23 @@ app.get("/write-json", (req, res) => {
             <pre>${JSON.stringify(newData, null, 2)}</pre>
         `);
     });
+});
+
+app.get('/api/users', (req,res) => {
+  //skapa en lista med användarnamn
+  const users = [
+    { id: 1, name: "Alice" },
+    { id: 2, name: "Bob" },
+    { id: 3, name: "Charlie" }
+  ];
+  res.send(`
+    ${getNavbar()}
+    <h1>Lista med användare</h1>
+    <pre>${JSON.stringify(users, null, 2)}</pre>
+    `);
+  
+  //skicka tillbaka listan som json
+  res.json(users);
 });
 
 // Starta servern
